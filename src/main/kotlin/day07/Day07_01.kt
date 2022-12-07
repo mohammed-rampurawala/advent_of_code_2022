@@ -9,24 +9,20 @@ private const val directory = "dir"
 private const val listFiles = "ls"
 
 open class File(open val name: String, open var size: Long = 0L) {
-    open fun isDirectory(): Boolean {
-        return false
-    }
+    open fun isDirectory() = false
 }
 
 class Dir(override val name: String, override var size: Long = 0L) : File(name, size) {
-    override fun isDirectory(): Boolean {
-        return true
-    }
+    override fun isDirectory() = true
 }
 
 class Tree<T> {
     var root: Node<T>? = null
 
     class Node<T>(var data: T?, var parent: Node<T>?) {
-        val childrens = mutableListOf<Node<T>>()
+        val children = mutableListOf<Node<T>>()
         override fun toString(): String {
-            return "Data: $data, Childrens: $childrens"
+            return "Data: $data, Children: $children"
         }
     }
 
@@ -38,7 +34,7 @@ class Tree<T> {
 fun main() {
     val commands = readInput("day07")
     val tree: Tree<File> = Tree()
-    prepareTree(false, commands.iterator(), tree.root, tree)
+    navigate(false, commands.iterator(), tree.root, tree)
     calculateDirSize(tree.root)
     val sizesList = mutableListOf<Long>()
     getSizeListOfAllDirectories(tree.root, sizesList)
@@ -52,7 +48,7 @@ fun getSizeListOfAllDirectories(currNode: Tree.Node<File>?, sizesList: MutableLi
         if (currNode.data?.isDirectory() == true) {
             val dir = currNode.data as Dir
             sizesList.add(dir.size)
-            currNode.childrens.forEach {
+            currNode.children.forEach {
                 getSizeListOfAllDirectories(it, sizesList)
             }
         } else {
@@ -67,7 +63,7 @@ fun calculateDirSize(currNode: Tree.Node<File>?): Long {
         return 0L
     } else {
         if (currNode.data?.isDirectory() == true) {
-            currNode.childrens.forEach {
+            currNode.children.forEach {
                 size += calculateDirSize(it)
             }
             (currNode.data as Dir).size = size
@@ -81,49 +77,46 @@ fun calculateDirSize(currNode: Tree.Node<File>?): Long {
     return size
 }
 
-fun prepareTree(isListFiles: Boolean, commandIter: Iterator<String>, currNode: Tree.Node<File>?, tree: Tree<File>) {
-    if (commandIter.hasNext().not()) {
+fun switchDirectory(dirName: String, currNode: Tree.Node<File>?, tree: Tree<File>) = when (dirName) {
+    rootDirectory -> {
+        val dir = Dir(dirName)
+        val root = tree.root ?: Tree.Node<File>(dir, null)
+        tree.root = root
+        root
+    }
+
+    ".." -> currNode!!.parent
+    else -> changeDirectory(currNode!!, dirName)
+}
+
+fun navigate(isListFiles: Boolean, cmdIterator: Iterator<String>, currNode: Tree.Node<File>?, tree: Tree<File>) {
+    if (cmdIterator.hasNext().not()) {
         return
     }
 
-    val command = commandIter.next()
+    val command = cmdIterator.next()
     if (command.isEmpty()) {
         return
     }
 
     if (isChangeDirectoryCommand(command)) {
         val indexOfLast = command.indexOfLast { it == ' ' }
-        when (val dirName = command.substring(indexOfLast, command.length).trim()) {
-            rootDirectory -> {
-                val dir = Dir(dirName)
-                val root = tree.root ?: Tree.Node<File>(dir, null)
-                tree.root = root
-                prepareTree(false, commandIter, root, tree)
-            }
-
-            ".." -> {
-                prepareTree(isListFiles, commandIter, currNode!!.parent, tree)
-            }
-
-            else -> {
-                val currentDir = changeDirectory(currNode!!, dirName)
-                prepareTree(false, commandIter, currentDir!!, tree)
-            }
-        }
+        val dirName = command.substring(indexOfLast, command.length).trim()
+        navigate(isListFiles, cmdIterator, switchDirectory(dirName, currNode, tree), tree)
     } else if (isListFilesCommand(command)) {
-        prepareTree(true, commandIter, currNode, tree)
+        navigate(true, cmdIterator, currNode, tree)
     } else if (isListFiles) {
-        val indexOfLast = command.indexOfLast { it == ' ' }
-        val name = command.substring(indexOfLast, command.length).trim()
-        currNode?.childrens?.add(if (command.startsWith(directory)) {
+        val (firstPart, secondPart) = command.split(' ')
+        val name = secondPart.trim()
+        currNode?.children?.add(if (firstPart == directory) {
             Tree.Node(Dir(name), currNode)
         } else {
             val file = File(name).also {
-                it.size = command.substring(0, indexOfLast).toLong()
+                it.size = firstPart.toLong()
             }
             Tree.Node(file, currNode)
         })
-        prepareTree(isListFiles, commandIter, currNode, tree)
+        navigate(true, cmdIterator, currNode, tree)
     }
 }
 
@@ -132,7 +125,7 @@ fun isListFilesCommand(next: String): Boolean {
 }
 
 fun changeDirectory(currNode: Tree.Node<File>, dirName: String): Tree.Node<File>? {
-    currNode.childrens.forEach {
+    currNode.children.forEach {
         if (it.data?.isDirectory() == true && it.data?.name == dirName) {
             return it
         }

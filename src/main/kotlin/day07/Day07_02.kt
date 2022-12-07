@@ -8,7 +8,7 @@ private const val atleastSpaceRequired: Long = 30000000L
 fun main() {
     val commands = readInput("day07")
     val tree: Tree<File> = Tree()
-    prepareTree(false, commands.iterator(), tree.root, tree)
+    navigate(false, commands.iterator(), tree.root, tree)
     calculateDirSize(tree.root)
     val currentlyFreeSpace = diskSpaceAvailable - (tree.root?.data as Dir).size
     if (currentlyFreeSpace >= atleastSpaceRequired) {

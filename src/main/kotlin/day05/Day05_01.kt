@@ -19,9 +19,9 @@ fun main() {
     }
     val builder = StringBuilder()
     stackList.forEach {
-        builder.append(it.pop())
+        builder.append(it.pop().toCharArray()[1])
     }
-    println(builder.toString().replace('[', ' ').replace(']', ' ').filter { !it.isWhitespace() })
+    println(builder.toString())
 }
 
 private fun cleanInput(height: Int, input: List<String>): MutableList<List<Int>> {
