@@ -7,6 +7,8 @@ private const val changeDirectory = "cd"
 private const val rootDirectory = "/"
 private const val directory = "dir"
 private const val listFiles = "ls"
+private const val diskSpaceAvailable = 70000000
+private const val atleastSpaceRequired: Long = 30000000L
 
 open class File(open val name: String, open var size: Long = 0L) {
     open fun isDirectory() = false
@@ -32,13 +34,34 @@ class Tree<T> {
 }
 
 fun main() {
-    val commands = readInput("day07")
-    val tree: Tree<File> = Tree()
-    navigate(false, commands.iterator(), tree.root, tree)
-    calculateDirSize(tree.root)
-    val sizesList = mutableListOf<Long>()
-    getSizeListOfAllDirectories(tree.root, sizesList)
-    println(sizesList.filter { it <= 100000 }.sum())
+    fun part1(input: List<String>): Long {
+        val tree: Tree<File> = Tree()
+        navigate(false, input.iterator(), tree.root, tree)
+        calculateDirSize(tree.root)
+        val sizesList = mutableListOf<Long>()
+        getSizeListOfAllDirectories(tree.root, sizesList)
+        return sizesList.filter { it <= 100000 }.sum()
+    }
+
+    fun part2(input: List<String>): Long {
+        val tree: Tree<File> = Tree()
+        navigate(false, input.iterator(), tree.root, tree)
+        calculateDirSize(tree.root)
+        val currentlyFreeSpace = diskSpaceAvailable - (tree.root?.data as Dir).size
+        if (currentlyFreeSpace >= atleastSpaceRequired) {
+            println("Nothing to do")
+            return 0
+        }
+        val spaceToUpdate = atleastSpaceRequired - currentlyFreeSpace
+        println("Space to Update: $spaceToUpdate, Current free space: $currentlyFreeSpace")
+        val sizesList = mutableListOf<Long>()
+        getSizeListOfAllDirectories(tree.root, sizesList)
+        return closest(sizesList, spaceToUpdate)
+    }
+
+    val input = readInput("Day07")
+    println(part1(input))
+    println(part2(input))
 }
 
 fun getSizeListOfAllDirectories(currNode: Tree.Node<File>?, sizesList: MutableList<Long>) {
@@ -135,4 +158,18 @@ fun changeDirectory(currNode: Tree.Node<File>, dirName: String): Tree.Node<File>
 
 fun isChangeDirectoryCommand(command: String): Boolean {
     return command.contains(executeCommandDelimiter) && command.contains(changeDirectory)
+}
+
+fun closest(sizesList: MutableList<Long>, of: Long): Long {
+    sizesList.sortDescending()
+    var mininumDifference = Long.MAX_VALUE
+    var closest = of
+    for (value in sizesList) {
+        val diff = Math.abs(of - value)
+        if (diff < mininumDifference) {
+            mininumDifference = diff
+            closest = value
+        }
+    }
+    return closest
 }
