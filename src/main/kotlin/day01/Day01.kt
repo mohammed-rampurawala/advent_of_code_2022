@@ -1,7 +1,7 @@
 package advent
 
 fun main(args: Array<String>) {
-    val input = readInput("first_input")
+    val input = readInput("day01")
     var counter = 1
     val mapOfCalories = mutableMapOf<Int, Long>()
     input.forEach {
