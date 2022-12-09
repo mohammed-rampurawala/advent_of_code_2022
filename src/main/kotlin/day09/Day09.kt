@@ -18,39 +18,45 @@ fun main() {
     }
 
     fun findTailPosition(hPos: Pair<Int, Int>, tPos: Pair<Int, Int>): Pair<Int, Int> {
-        val row = hPos.first - tPos.first
-        val col = hPos.second - tPos.second
-        if (abs(row) <= 1 && abs(col) <= 1) {
-            return tPos
-        } else if (abs(row) >= 2 && abs(col) >= 2) {
-            val tAdjustedRowPos = if (tPos.first < hPos.first) {
-                hPos.first - 1
-            } else {
-                hPos.first + 1
+        return when {
+            abs(hPos.first - tPos.first) <= 1 && abs(hPos.second - tPos.second) <= 1 -> tPos
+            abs(hPos.first - tPos.first) >= 2 && abs(hPos.second - tPos.second) >= 2 -> {
+                val tAdjustedRowPos = if (tPos.first < hPos.first) {
+                    hPos.first - 1
+                } else {
+                    hPos.first + 1
+                }
+
+                val tAdjustedColPos = if (tPos.second < hPos.second) {
+                    hPos.second - 1
+                } else {
+                    hPos.second + 1
+                }
+                return Pair(tAdjustedRowPos, tAdjustedColPos)
             }
 
-            val tAdjustedColPos = if (tPos.second < hPos.second) {
-                hPos.second - 1
-            } else {
-                hPos.second + 1
+            abs(hPos.first - tPos.first) >= 2 -> {
+                val tAdjustedRowPos = if (tPos.first < hPos.first) {
+                    hPos.first - 1
+                } else {
+                    hPos.first + 1
+                }
+                Pair(tAdjustedRowPos, hPos.second)
             }
-            return Pair(tAdjustedRowPos, tAdjustedColPos)
-        } else if (abs(row) >= 2) {
-            val tAdjustedRowPos = if (tPos.first < hPos.first) {
-                hPos.first - 1
-            } else {
-                hPos.first + 1
+
+            abs(hPos.second - tPos.second) >= 2 -> {
+                val tAdjustedColPos = if (tPos.second < hPos.second) {
+                    hPos.second - 1
+                } else {
+                    hPos.second + 1
+                }
+                Pair(hPos.first, tAdjustedColPos)
             }
-            return Pair(tAdjustedRowPos, hPos.second)
-        } else if (abs(col) >= 2) {
-            val tAdjustedColPos = if (tPos.second < hPos.second) {
-                hPos.second - 1
-            } else {
-                hPos.second + 1
+
+            else -> {
+                Pair(Int.MIN_VALUE, Int.MIN_VALUE)
             }
-            return Pair(hPos.first, tAdjustedColPos)
         }
-        return Pair(-100, -100)
     }
 
     fun part1(input: List<String>): Int {
@@ -64,7 +70,7 @@ fun main() {
                 val dPos = getDirectionPos(direction)
                 hPos = Pair(hPos.first + directionSteps[dPos].first, hPos.second + directionSteps[dPos].second)
                 tPos = findTailPosition(hPos, tPos)
-                tailTrack.addAll(listOf(tPos))
+                if (tPos.first != Int.MIN_VALUE) tailTrack.addAll(listOf(tPos))
             }
         }
         return tailTrack.count()
@@ -85,7 +91,7 @@ fun main() {
                 for (i in 1 until 9) {
                     tPos[i] = findTailPosition(tPos[i - 1], tPos[i])
                 }
-                endPositionTrack.add(tPos[8])
+                if (tPos[8].first != Int.MIN_VALUE) endPositionTrack.add(tPos[8])
             }
 
         }
