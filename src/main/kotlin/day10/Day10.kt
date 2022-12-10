@@ -8,7 +8,7 @@ const val horizontalLength = 40
 const val litPixel = '#'
 fun main() {
     fun part1(input: List<Command>): Int {
-        var X = 1
+        var x = 1
         var cycle = 0
         var previousMatchedCycle = 0
         var sum = 0
@@ -17,21 +17,19 @@ fun main() {
                 cycle += 1
                 if (previousMatchedCycle == 0 && cycle == 20) {
                     previousMatchedCycle = cycle
-                    sum += (cycle * X)
+                    sum += (cycle * x)
                 } else if (previousMatchedCycle + horizontalLength == cycle) {
                     previousMatchedCycle = cycle
-                    sum += (cycle * X)
+                    sum += (cycle * x)
                 }
             }
-            if (cmd.instruction is AddX) {
-                X += cmd.xCounter
-            }
+            x += cmd.xCounter
         }
         return sum
     }
 
     fun part2(input: List<Command>): Int {
-        val listOfPixels = List(6) { MutableList(horizontalLength) { '.' } }
+        val display = List(6) { MutableList(horizontalLength) { '.' } }
         var x = 1
         var cycle = 0
         var spritePosition = resetSpritePosition(x)
@@ -40,17 +38,15 @@ fun main() {
                 val spriteIdx = cycle % horizontalLength
                 val heightIdx = cycle / horizontalLength
                 if (spritePosition[spriteIdx] == litPixel) {
-                    listOfPixels[heightIdx][spriteIdx] = litPixel
+                    display[heightIdx][spriteIdx] = litPixel
                 }
                 cycle += 1
             }
-            if (cmd.instruction is AddX) {
-                x += cmd.xCounter
-            }
+            x += cmd.xCounter
             spritePosition = resetSpritePosition(x)
         }
 
-        listOfPixels.forEach {
+        display.forEach {
             print(it.toString().replace(',', ' ').replace("\\s".toRegex(), ""))
             println()
         }
@@ -67,7 +63,7 @@ private fun getCommands(): List<Command> {
         it.split(" ")
     }.map {
         if (it.first() == "noop") {
-            Command(Noop, 1)
+            Command(Noop, 0)
         } else {
             Command(AddX, it.last().toInt())
         }
