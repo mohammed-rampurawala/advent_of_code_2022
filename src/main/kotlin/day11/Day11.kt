@@ -87,41 +87,31 @@ private data class Monkey(val name: Int) : Cloneable {
     var inspectionCount = 0L
     fun operation(): Long {
         inspectionCount++
-        var first = 0L
-        var second = 0L
         val old = worryLevels.removeAt(0)
         val operation = operation.substring(operation.lastIndexOf('=') + 1)
-        if (operation.contains("+")) {
+        return if (operation.contains("+")) {
             val split = operation.split("+").map { it.trim() }
-            first = if (split[0] == "old") {
-                old
-            } else {
-                split[0].toLong()
-            }
-            second = if (split[1] == "old") {
-                old
-            } else {
-                split[1].toLong()
-            }
-
-            return (first + second)
-        }
-
-        if (operation.contains("*")) {
+            val (first, second) = parseOperation(split, old)
+            first + second
+        } else {
             val split = operation.split("*").map { it.trim() }
-            first = if (split[0] == "old") {
-                old
-            } else {
-                split[0].toLong()
-            }
-            second = if (split[1] == "old") {
-                old
-            } else {
-                split[1].toLong()
-            }
-            return (first * second)
+            val (first, second) = parseOperation(split, old)
+            first * second
         }
-        return Long.MIN_VALUE
+    }
+
+    private fun parseOperation(split: List<String>, old: Long): List<Long> {
+        val first = if (split[0] == "old") {
+            old
+        } else {
+            split[0].toLong()
+        }
+        val second = if (split[1] == "old") {
+            old
+        } else {
+            split[1].toLong()
+        }
+        return listOf(first, second)
     }
 
     fun test(number: Long): Boolean = number % divisibleBy == 0L
