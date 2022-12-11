@@ -8,14 +8,10 @@ import java.util.regex.Pattern
 fun main() {
     fun part1(input: List<Monkey>): Long {
         repeat(20) {
-            input.forEach { m ->
-                while (m.worryLevels.isNotEmpty()) {
-                    val number = m.operation() / 3
-                    if (m.test(number)) {
-                        input[m.forTrue].worryLevels.add(number)
-                    } else {
-                        input[m.forFalse].worryLevels.add(number)
-                    }
+            input.forEach { monkey ->
+                while (monkey.worryLevels.isNotEmpty()) {
+                    val number = monkey.operation() / 3
+                    input[monkey.test(number)].worryLevels.add(number)
                 }
             }
         }
@@ -32,11 +28,7 @@ fun main() {
             input.forEach { monkey ->
                 while (monkey.worryLevels.isNotEmpty()) {
                     val number = monkey.operation() % lcm
-                    if (monkey.test(number)) {
-                        input[monkey.forTrue].worryLevels.add(number)
-                    } else {
-                        input[monkey.forFalse].worryLevels.add(number)
-                    }
+                    input[monkey.test(number)].worryLevels.add(number)
                 }
             }
         }
@@ -114,7 +106,7 @@ private data class Monkey(val name: Int) : Cloneable {
         return listOf(first, second)
     }
 
-    fun test(number: Long): Boolean = number % divisibleBy == 0L
+    fun test(number: Long): Int = if (number % divisibleBy == 0L) forTrue else forFalse
 }
 
 fun lcm(eles: LongArray): Long {
