@@ -50,14 +50,7 @@ fun parse(readInput: List<String>): List<CharArray> {
 }
 
 fun isPathAvailable(
-    queue: LinkedList<Pos>,
-    xNew: Int,
-    yNew: Int,
-    d: Int,
-    x: Int,
-    y: Int,
-    input: List<CharArray>,
-    visited: MutableSet<Pos>
+    queue: LinkedList<Pos>, xNew: Int, yNew: Int, d: Int, x: Int, y: Int, input: List<CharArray>, visited: MutableSet<Pos>
 ) {
     if (xNew in input.indices && yNew in input[0].indices) {
         when {
