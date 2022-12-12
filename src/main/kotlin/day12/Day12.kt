@@ -12,6 +12,8 @@ val elevation = mutableMapOf<Char, Int>().also {
     }
 }
 
+val directions = listOf(Pair(-1, 0), Pair(1, 0), Pair(0, -1), Pair(0, +1))
+
 fun main() {
 
     fun part1(input: List<CharArray>): Int {
@@ -88,15 +90,9 @@ fun distance(start: Pos, input: List<CharArray>): Int {
         if (input[x][y] == 'E') {
             return d!!
         }
-
-        //Right
-        isPathAvailable(queue, x + 1, y, d ?: 0, x, y, input, visited)
-        //Left
-        isPathAvailable(queue, x - 1, y, d ?: 0, x, y, input, visited)
-        //Down
-        isPathAvailable(queue, x, y + 1, d ?: 0, x, y, input, visited)
-        //Top
-        isPathAvailable(queue, x, y - 1, d ?: 0, x, y, input, visited)
+        directions.forEach {
+            isPathAvailable(queue, x + it.first, y+it.second, d ?: 0, x, y, input, visited)
+        }
     }
     return 0
 }
