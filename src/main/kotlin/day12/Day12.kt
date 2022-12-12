@@ -4,14 +4,6 @@ import advent.readInput
 import java.util.LinkedList
 import kotlin.math.min
 
-val elevation = mutableMapOf<Char, Int>().also {
-    var start = 'a'
-    while (start <= 'z') {
-        it[start] = start - 'a'
-        start++
-    }
-}
-
 val directions = listOf(Pair(-1, 0), Pair(1, 0), Pair(0, -1), Pair(0, +1))
 
 fun main() {
@@ -68,15 +60,13 @@ fun isPathAvailable(
     visited: MutableSet<Pos>
 ) {
     if (xNew in input.indices && yNew in input[0].indices) {
-        if (input[xNew][yNew] == 'E' && (elevation['z']!!.minus(elevation[input[x][y]]!!)) <= 1) {
-            queue.offer(Pos(xNew, yNew, d + 1))
-        } else if (input[xNew][yNew] != 'E' && visited.contains(Pos(xNew, yNew))
-                .not() && elevation[input[xNew][yNew]]!! - elevation[input[x][y]]!! <= 1
-        ) {
-            visited.add(Pos(xNew, yNew))
-            queue.offer(Pos(xNew, yNew, d + 1))
+        when {
+            input[xNew][yNew] == 'E' && ('z' - input[x][y]) <= 1 -> queue.offer(Pos(xNew, yNew, d + 1))
+            input[xNew][yNew] != 'E' && visited.contains(Pos(xNew, yNew)).not() && input[xNew][yNew] - input[x][y] <= 1 -> {
+                visited.add(Pos(xNew, yNew))
+                queue.offer(Pos(xNew, yNew, d + 1))
+            }
         }
-
     }
 }
 
@@ -91,7 +81,7 @@ fun distance(start: Pos, input: List<CharArray>): Int {
             return d!!
         }
         directions.forEach {
-            isPathAvailable(queue, x + it.first, y+it.second, d ?: 0, x, y, input, visited)
+            isPathAvailable(queue, x + it.first, y + it.second, d ?: 0, x, y, input, visited)
         }
     }
     return 0
