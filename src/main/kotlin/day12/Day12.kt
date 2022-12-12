@@ -21,17 +21,17 @@ fun main() {
     }
 
     fun part2(input: List<CharArray>): Int {
-        var minDistance = Int.MAX_VALUE
+        val listOfDistances = mutableListOf<Int>()
         for (i in input.indices) {
             for (j in input[0].indices) {
                 if (input[i][j] == 'S' || input[i][j] == 'a') {
                     input[i][j] = 'a'
                     val distance = (distance(Pos(i, j), input))
-                    if (distance != 0) minDistance = min(minDistance, (distance(Pos(i, j), input)))
+                    listOfDistances.add(distance)
                 }
             }
         }
-        return minDistance
+        return listOfDistances.filter { it != 0 }.min()
     }
 
     val input = parse(readInput("day12"))
