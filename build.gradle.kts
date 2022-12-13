@@ -17,3 +17,7 @@ tasks {
         gradleVersion = "7.6"
     }
 }
+
+dependencies {
+    implementation("org.json:json:20220924")
+}
