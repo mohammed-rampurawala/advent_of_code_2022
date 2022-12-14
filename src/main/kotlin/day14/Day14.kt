@@ -3,54 +3,9 @@ package advent.day14
 import advent.readInput
 
 fun main() {
-    fun part1(input: Set<Pair<Int, Int>>): Int {
-        val map = input.toMutableSet()
+    fun findSandPos(set: Set<Pair<Int, Int>>, maxY: Int): Int {
+        val map = set.toMutableSet()
         var sand = 0
-        val maxY = map.maxOf { it.second }
-        while (true) {
-            var sandX = 500
-            var sandY = 0
-            if (map.contains(Pair(sandX, sandY))) return sand
-
-            while (true) {
-                if (sandY == maxY) return sand
-
-                if (input.contains(Pair(sandX, sandY + 1)).not()) {
-                    sandY++
-                    continue
-                }
-
-                if (input.contains(Pair(sandX - 1, sandY + 1)).not()) {
-                    sandX--
-                    sandY++
-                    continue
-                }
-
-                if (input.contains(Pair(sandX + 1, sandY + 1)).not()) {
-                    sandX++
-                    sandY++
-                    continue
-                }
-                break
-            }
-            map.add(Pair(sandX, sandY))
-            sand++
-        }
-    }
-
-    fun part2(input: MutableSet<Pair<Int, Int>>): Int {
-        val map = input.toMutableSet()
-        var sand = 0
-        var maxY = map.maxOf { it.second }
-        val minX = map.minOf { it.first }
-        val maxX = map.maxOf { it.first }
-        maxY += 2
-        var start = minX - maxY
-        val end = maxX + maxY
-        while (start < end) {
-            map.add(Pair(start, maxY))
-            start++
-        }
         while (true) {
             var sandX = 500
             var sandY = 0
@@ -81,11 +36,32 @@ fun main() {
             sand++
         }
     }
-    println(part1(createMap(parse(readInput("day14")))))
-    println(part2(createMap(parse(readInput("day14")))))
+
+    fun part1(input: Set<Pair<Int, Int>>): Int {
+        val maxY = input.maxOf { it.second }
+        return findSandPos(input, maxY)
+    }
+
+    fun part2(input: MutableSet<Pair<Int, Int>>): Int {
+        val map = input.toMutableSet()
+        var maxY = map.maxOf { it.second }
+        val minX = map.minOf { it.first }
+        val maxX = map.maxOf { it.first }
+        maxY += 2
+        var start = minX - maxY
+        val end = maxX + maxY
+        while (start < end) {
+            map.add(Pair(start, maxY))
+            start++
+        }
+        return findSandPos(map, maxY)
+    }
+
+    println(part1(createSet(parse(readInput("day14")))))
+    println(part2(createSet(parse(readInput("day14")))))
 }
 
-fun createMap(parse: List<List<Pair<Int, Int>>>): MutableSet<Pair<Int, Int>> {
+fun createSet(parse: List<List<Pair<Int, Int>>>): MutableSet<Pair<Int, Int>> {
     val map = mutableSetOf<Pair<Int, Int>>()
     parse.forEach {
         var idx = 0
@@ -109,15 +85,8 @@ fun createMap(parse: List<List<Pair<Int, Int>>>): MutableSet<Pair<Int, Int>> {
     return map
 }
 
-private fun parse(input: List<String>): List<List<Pair<Int, Int>>> {
-    val chunked = input.filter { it.isNotBlank() }.map {
-        it.split("->")
-            .joinToString()
-            .split(",")
-            .chunked(2)
-            .map {
-                Pair(it.first().trim().toInt(), it.last().trim().toInt())
-            }
+private fun parse(input: List<String>) = input.filter { it.isNotBlank() }.map {
+    it.split("->").joinToString().split(",").chunked(2).map { list ->
+        Pair(list.first().trim().toInt(), list.last().trim().toInt())
     }
-    return chunked
 }
