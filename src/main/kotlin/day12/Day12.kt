@@ -49,7 +49,7 @@ fun parse(readInput: List<String>): List<CharArray> {
     return result
 }
 
-fun isPathAvailable(
+private fun isPathAvailable(
     queue: LinkedList<Pos>, xNew: Int, yNew: Int, d: Int, x: Int, y: Int, input: List<CharArray>, visited: MutableSet<Pos>
 ) {
     if (xNew in input.indices && yNew in input[0].indices) {
